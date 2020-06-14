@@ -28,6 +28,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
+import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 
@@ -233,6 +234,7 @@ public class Shard implements ShardOwner {
         if (frame == null) {
             frame = new FrameLayout(context);
             frame.setSaveFromParentEnabled(false);
+            ViewTreeLifecycleOwner.set(frame, this);
             container.addView(frame);
         }
         return frame;

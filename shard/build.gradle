@@ -1,7 +1,7 @@
 apply from: '../library.gradle'
 
 dependencies {
-    def lifecycle_version = "2.2.0"
+    def lifecycle_version = "2.3.0-alpha01"
     api "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
     api "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
     api "androidx.lifecycle:lifecycle-viewmodel-savedstate:1.0.0"

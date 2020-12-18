@@ -1,11 +1,18 @@
 package me.tatarka.shard.fragment.app.test;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.savedstate.SavedStateRegistry;
 
@@ -18,8 +25,12 @@ import static me.tatarka.shard.fragment.app.ShardFragmentManager.getFragmentMana
 public class TestShard extends Shard {
     public boolean onCreateCalled;
     public int state;
-    public int resultCode;
     public TestFragment fragment;
+    public int resultCode;
+    public boolean permissionGranted;
+
+    private ActivityResultLauncher<Intent> activityResult;
+    private ActivityResultLauncher<String> permissionResult2;
 
     @Override
     public void onCreate() {
@@ -39,10 +50,17 @@ public class TestShard extends Shard {
                 return bundle;
             }
         });
-        getActivityCallbacks().addOnActivityResultCallback(2, new ActivityCallbacks.OnActivityResultCallback() {
+
+        activityResult = prepareCall(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
-            public void onActivityResult(int resultCode, @Nullable Intent data) {
-                TestShard.this.resultCode = resultCode;
+            public void onActivityResult(ActivityResult result) {
+                TestShard.this.resultCode = result.getResultCode();
+            }
+        });
+        permissionResult2 = prepareCall(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
+            @Override
+            public void onActivityResult(Boolean result) {
+                permissionGranted = result;
             }
         });
 
@@ -54,6 +72,14 @@ public class TestShard extends Shard {
     }
 
     public void startActivityForResult(Class<? extends Activity> activity) {
-        getActivityCallbacks().startActivityForResult(new Intent(getContext(), activity), 2);
+        activityResult.launch(new Intent(getContext(), activity));
+    }
+
+    public void startActivityForResultWithOptions(Class<? extends Activity> activity) {
+        activityResult.launch(new Intent(getContext(), activity), ActivityOptionsCompat.makeBasic());
+    }
+
+    public void requestPermission(String permission) {
+        permissionResult2.launch(permission);
     }
 }

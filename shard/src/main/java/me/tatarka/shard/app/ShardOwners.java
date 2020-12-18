@@ -3,13 +3,16 @@ package me.tatarka.shard.app;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentSender;
-import android.os.Bundle;
+import android.os.Build;
 
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
@@ -78,7 +81,7 @@ public final class ShardOwners {
         private final Context context;
         final ComponentCallbacksDispatcher callbacks;
         @Nullable
-        WrappingActivityCallbacks activityCallbacks;
+        ActivityCallbacksDispatcher activityCallbacks;
 
         private WrappingShardOwner(Context context) {
             this.context = context;
@@ -123,6 +126,12 @@ public final class ShardOwners {
 
         @NonNull
         @Override
+        public ActivityResultRegistry getActivityResultRegistry() {
+            return ((ComponentActivity) context).getActivityResultRegistry();
+        }
+
+        @NonNull
+        @Override
         public Shard.Factory getShardFactory() {
             return (context instanceof ShardFactoryProvider)
                     ? ((ShardFactoryProvider) context).getShardFactory()
@@ -136,7 +145,7 @@ public final class ShardOwners {
                 return ((ActivityCallbacksOwner) context).getActivityCallbacks();
             } else if (context instanceof ComponentActivity) {
                 if (activityCallbacks == null) {
-                    activityCallbacks = new WrappingActivityCallbacks((ComponentActivity) context);
+                    activityCallbacks = new ActivityCallbacksActivityDispatcher((ComponentActivity) context);
                 }
                 return activityCallbacks;
             } else {
@@ -156,108 +165,17 @@ public final class ShardOwners {
                 MAP.remove((Activity) source);
             }
         }
-    }
 
-    static class WrappingActivityCallbacks implements ActivityCallbacks {
-        final ComponentActivity activity;
-        final ActivityCallbacksActivityDispatcher dispatcher;
-
-        WrappingActivityCallbacks(ComponentActivity activity) {
-            this.activity = activity;
-            dispatcher = new ActivityCallbacksActivityDispatcher(activity);
+        @NonNull
+        @Override
+        public <I, O> ActivityResultLauncher<I> prepareCall(@NonNull ActivityResultContract<I, O> contract, @NonNull ActivityResultCallback<O> callback) {
+            return ((ActivityResultCaller) context).prepareCall(contract, callback);
         }
 
+        @NonNull
         @Override
-        public void startActivityForResult(@NonNull Intent intent, int requestCode) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void startActivityForResult(@NonNull Intent intent, int requestCode, @Nullable Bundle options) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void startIntentSenderForResult(IntentSender intent, int requestCode,
-                                               @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags) throws IntentSender.SendIntentException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void startIntentSenderForResult(@NonNull IntentSender intent, int requestCode,
-                                               @Nullable Intent fillIntent, int flagsMask, int flagsValues, int extraFlags,
-                                               Bundle options) throws IntentSender.SendIntentException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void addOnActivityResultCallback(int requestCode, @NonNull OnActivityResultCallback onActivityResultCallback) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void removeActivityResultCallback(@NonNull OnActivityResultCallback callback) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void requestPermissions(@NonNull String[] permissions, int requestCode) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean shouldShowRequestPermissionRationale(@NonNull String permission) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void addOnRequestPermissionResultCallback(int requestCode, @NonNull OnRequestPermissionResultCallback onRequestPermissionResultCallback) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void removeOnRequestPermissionResultCallback(@NonNull OnRequestPermissionResultCallback onRequestPermissionResultCallback) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isInMultiWindowMode() {
-            return dispatcher.isInMultiWindowMode();
-        }
-
-        @Override
-        public void addOnMultiWindowModeChangedCallback(@NonNull OnMultiWindowModeChangedCallback onMultiWindowModeChangedCallback) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void removeOnMultiWindowModeChangedCallback(@NonNull OnMultiWindowModeChangedCallback onMultiWindowModeChangedCallback) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isInPictureInPictureMode() {
-            return dispatcher.isInPictureInPictureMode();
-        }
-
-        @Override
-        public void addOnPictureInPictureModeChangedCallback(@NonNull OnPictureInPictureModeChangedCallback onPictureInPictureModeChangedCallback) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void removeOnPictureInPictureModeChangedCallback(@NonNull OnPictureInPictureModeChangedCallback onPictureInPictureModeChangedCallback) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void addOnActivityCallbacks(OnActivityCallbacks callbacks) {
-
-        }
-
-        @Override
-        public void removeOnActivityCallbacks(OnActivityCallbacks callbacks) {
-
+        public <I, O> ActivityResultLauncher<I> prepareCall(@NonNull ActivityResultContract<I, O> contract, @NonNull ActivityResultRegistry registry, @NonNull ActivityResultCallback<O> callback) {
+            return ((ActivityResultCaller) context).prepareCall(contract, registry, callback);
         }
     }
 

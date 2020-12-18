@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultRegistry;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.LifecycleOwner;
@@ -25,8 +27,11 @@ public interface ShardOwner extends
         SavedStateRegistryOwner,
         ActivityCallbacksOwner,
         ComponentCallbacksOwner,
+        ActivityResultCaller,
         ShardFactoryProvider {
     @NonNull
     Context getContext();
 
+    @NonNull
+    ActivityResultRegistry getActivityResultRegistry();
 }

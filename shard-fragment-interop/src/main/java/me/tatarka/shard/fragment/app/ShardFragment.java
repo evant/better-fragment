@@ -1,11 +1,11 @@
 package me.tatarka.shard.fragment.app;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.result.ActivityResultRegistry;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,6 +37,12 @@ public class ShardFragment extends Fragment implements ShardOwner {
 
     @NonNull
     @Override
+    public ActivityResultRegistry getActivityResultRegistry() {
+        return requireActivity().getActivityResultRegistry();
+    }
+
+    @NonNull
+    @Override
     public LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
         return delegate.wrapLayoutInflater(super.onGetLayoutInflater(savedInstanceState));
     }
@@ -61,18 +67,6 @@ public class ShardFragment extends Fragment implements ShardOwner {
     @Override
     public ComponentCallbacks getComponentCallbacks() {
         return delegate.getComponentCallbacks();
-    }
-
-    @Override
-    @CallSuper
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        delegate.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    @CallSuper
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        delegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override

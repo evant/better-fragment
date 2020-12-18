@@ -11,8 +11,14 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.IdRes;
@@ -46,11 +52,13 @@ public class Shard implements ShardOwner {
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
     {
-        lifecycleRegistry.addObserver(new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            void onLifecyleEvent() {
-                if (frame != null) {
-                    frame.cancelPendingInputEvents();
+        lifecycleRegistry.addObserver(new LifecycleEventObserver() {
+            @Override
+            public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+                if (Lifecycle.Event.ON_STOP.equals(event)) {
+                    if (frame != null) {
+                        frame.cancelPendingInputEvents();
+                    }
                 }
             }
         });
@@ -59,6 +67,7 @@ public class Shard implements ShardOwner {
     private final SavedStateRegistryController stateRegistryController = SavedStateRegistryController.create(this);
     private ActivityCallbacksNestedDispatcher activityCallbackDispatcher;
     private ComponentCallbacksDispatcher componentCallbacksDispatcher;
+    private ActivityResultCallerDispatcher activityResultCallerDispatcher;
     private final Observer observer = new Observer();
     private int viewModelId = -1;
     private Container container;
@@ -98,6 +107,7 @@ public class Shard implements ShardOwner {
         stateRegistryController.performRestore(state != null ? state.savedState : null);
         activityCallbackDispatcher = new ActivityCallbacksNestedDispatcher(owner.getActivityCallbacks(), this);
         componentCallbacksDispatcher = new ComponentCallbacksDispatcher(this);
+        activityResultCallerDispatcher = new ActivityResultCallerDispatcher(owner.getActivityResultRegistry(), getSavedStateRegistry(), this);
         onCreate();
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
 
@@ -349,6 +359,24 @@ public class Shard implements ShardOwner {
     public ComponentCallbacks getComponentCallbacks() {
         checkCreated();
         return componentCallbacksDispatcher;
+    }
+
+    @NonNull
+    @Override
+    public ActivityResultRegistry getActivityResultRegistry() {
+        return owner.getActivityResultRegistry();
+    }
+
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(@NonNull ActivityResultContract<I, O> contract, @NonNull ActivityResultCallback<O> callback) {
+        return activityResultCallerDispatcher.prepareCall(contract, callback);
+    }
+
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(@NonNull ActivityResultContract<I, O> contract, @NonNull ActivityResultRegistry registry, @NonNull ActivityResultCallback<O> callback) {
+        return activityResultCallerDispatcher.prepareCall(contract, registry, callback);
     }
 
     private ViewModelStore getOrCreateViewModelStore() {

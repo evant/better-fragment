@@ -5,6 +5,6 @@ dependencies {
     api "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
     api "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
     api "androidx.lifecycle:lifecycle-viewmodel-savedstate:1.0.0"
-    api 'androidx.activity:activity:1.1.0'
+    api 'androidx.activity:activity:1.2.0-alpha03'
     api 'androidx.transition:transition:1.0.0'
 }

@@ -1,13 +1,13 @@
 package me.tatarka.shard.app;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import me.tatarka.shard.activity.ActivityCallbacks;
 import me.tatarka.shard.content.ComponentCallbacks;
 
@@ -52,18 +52,6 @@ public class ShardActivity extends ComponentActivity implements ShardOwner {
     @Override
     public final ComponentCallbacks getComponentCallbacks() {
         return delegate.getComponentCallbacks();
-    }
-
-    @Override
-    @CallSuper
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        delegate.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    @CallSuper
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        delegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override

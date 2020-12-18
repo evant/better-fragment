@@ -93,7 +93,6 @@ public final class ShardFragmentManager {
     private final HostCallback hostCallback;
     private FragmentController fragmentController;
 
-    private final Map<Fragment, ActivityCallbacksNestedDispatcher> fragmentDispatchers = new ArrayMap<>();
     private boolean created;
     private LayoutInflater inflater;
 
@@ -102,20 +101,6 @@ public final class ShardFragmentManager {
 
         hostCallback = new HostCallback();
         fragmentController = FragmentController.createController(hostCallback);
-
-        fragmentController.getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
-            @Override
-            public void onFragmentCreated(@NonNull FragmentManager fm, @NonNull Fragment f, @Nullable Bundle savedInstanceState) {
-                ActivityCallbacksNestedDispatcher dispatcher = new ActivityCallbacksNestedDispatcher(shard.getActivityCallbacks(), f);
-                dispatcher.addOnActivityCallbacks(new FragmentActivityCallbacks(f));
-                fragmentDispatchers.put(f, dispatcher);
-            }
-
-            @Override
-            public void onFragmentDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {
-                fragmentDispatchers.remove(f);
-            }
-        }, true);
 
         fragmentController.attachHost(null);
 
@@ -240,21 +225,6 @@ public final class ShardFragmentManager {
         }
 
         @Override
-        public void onStartActivityFromFragment(@NonNull Fragment fragment, Intent intent, int requestCode, @Nullable Bundle options) {
-            fragmentDispatchers.get(fragment).startActivityForResult(intent, requestCode, options);
-        }
-
-        @Override
-        public void onStartIntentSenderFromFragment(@NonNull Fragment fragment, IntentSender intent, int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
-            fragmentDispatchers.get(fragment).startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues, extraFlags, options);
-        }
-
-        @Override
-        public void onRequestPermissionsFromFragment(@NonNull Fragment fragment, @NonNull String[] permissions, int requestCode) {
-            fragmentDispatchers.get(fragment).requestPermissions(permissions, requestCode);
-        }
-
-        @Override
         public boolean onShouldShowRequestPermissionRationale(@NonNull String permission) {
             return shard.getActivityCallbacks().shouldShowRequestPermissionRationale(permission);
         }
@@ -312,36 +282,6 @@ public final class ShardFragmentManager {
         @Override
         public View onCreateView(String name, Context context, AttributeSet attrs) {
             return null;
-        }
-    }
-
-    class FragmentActivityCallbacks implements ActivityCallbacks.OnActivityCallbacks {
-        final Fragment fragment;
-
-        FragmentActivityCallbacks(Fragment fragment) {
-            this.fragment = fragment;
-        }
-
-        @Override
-        public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
-            // Handled by fragmentController
-        }
-
-        @Override
-        public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
-            // Handled by fragmentController
-        }
-
-        @Override
-        public boolean onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-            fragment.onActivityResult(requestCode, resultCode, data);
-            return false;
-        }
-
-        @Override
-        public boolean onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            return false;
         }
     }
 

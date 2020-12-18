@@ -8,6 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +26,7 @@ import androidx.lifecycle.ViewModelStore;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
 import me.tatarka.shard.activity.ActivityCallbacks;
 import me.tatarka.shard.app.Shard;
 import me.tatarka.shard.app.ShardManager;
@@ -245,6 +250,7 @@ public abstract class ShardPagerAdapter extends PagerAdapter {
         public SavedStateRegistry getSavedStateRegistry() {
             return parentOwner.getSavedStateRegistry();
         }
+
         @NonNull
         @Override
         public Shard.Factory getShardFactory() {
@@ -261,6 +267,24 @@ public abstract class ShardPagerAdapter extends PagerAdapter {
         @Override
         public ComponentCallbacks getComponentCallbacks() {
             return parentOwner.getComponentCallbacks();
+        }
+
+        @NonNull
+        @Override
+        public ActivityResultRegistry getActivityResultRegistry() {
+            return parentOwner.getActivityResultRegistry();
+        }
+
+        @NonNull
+        @Override
+        public <I, O> ActivityResultLauncher<I> prepareCall(@NonNull ActivityResultContract<I, O> contract, @NonNull ActivityResultCallback<O> callback) {
+            return parentOwner.prepareCall(contract, callback);
+        }
+
+        @NonNull
+        @Override
+        public <I, O> ActivityResultLauncher<I> prepareCall(@NonNull ActivityResultContract<I, O> contract, @NonNull ActivityResultRegistry registry, @NonNull ActivityResultCallback<O> callback) {
+            return parentOwner.prepareCall(contract, registry, callback);
         }
     }
 }

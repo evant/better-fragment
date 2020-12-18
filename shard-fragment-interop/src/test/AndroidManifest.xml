@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="me.tatarka.shard.fragment">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application>
         <activity android:name=".app.test.ResultActivity" />
         <activity android:name=".app.test.TestActivity" />

@@ -5,8 +5,13 @@ import android.content.Context;
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ViewModelProvider;
@@ -31,6 +36,12 @@ public class TestShardOwner implements ShardOwner {
     final ActivityCallbacks activityCallbacks;
     final ComponentCallbacks componentCallbacks = new ComponentCallbacksDispatcher(this);
     final OnBackPressedDispatcher dispatcher = new OnBackPressedDispatcher();
+    final ActivityResultRegistry activityResultRegistry = new ActivityResultRegistry() {
+        @Override
+        public <I, O> void invoke(int requestCode, @NonNull ActivityResultContract<I, O> contract, I input, @Nullable ActivityOptionsCompat options) {
+
+        }
+    };
 
     public TestShardOwner() {
         this(null);
@@ -92,5 +103,23 @@ public class TestShardOwner implements ShardOwner {
     @Override
     public OnBackPressedDispatcher getOnBackPressedDispatcher() {
         return dispatcher;
+    }
+
+    @NonNull
+    @Override
+    public ActivityResultRegistry getActivityResultRegistry() {
+        return activityResultRegistry;
+    }
+
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(@NonNull ActivityResultContract<I, O> contract, @NonNull ActivityResultCallback<O> callback) {
+        return activityResultRegistry.register("key", contract, callback);
+    }
+
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(@NonNull ActivityResultContract<I, O> contract, @NonNull ActivityResultRegistry registry, @NonNull ActivityResultCallback<O> callback) {
+        return registry.register("key", contract, callback);
     }
 }

@@ -1,10 +1,6 @@
 package me.tatarka.shard.app;
 
-import android.content.Intent;
-
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.Iterator;
@@ -21,44 +17,6 @@ public abstract class ActivityCallbacksDispatcher implements ActivityCallbacks {
 
     protected ActivityCallbacksDispatcher(LifecycleOwner lifecycleOwner) {
         this.lifecycleOwner = lifecycleOwner;
-    }
-
-    @Override
-    public final void addOnActivityResultCallback(final int requestCode, @NonNull final OnActivityResultCallback listener) {
-        adapterCallbacks.add(new OnActivityCallbacksAdapter(listener) {
-            @Override
-            public boolean onActivityResult(int r, int resultCode, @Nullable Intent data) {
-                if (r == requestCode) {
-                    listener.onActivityResult(resultCode, data);
-                    return true;
-                }
-                return false;
-            }
-        });
-    }
-
-    @Override
-    public final void removeActivityResultCallback(@NonNull OnActivityResultCallback callback) {
-        removeCallback(callback);
-    }
-
-    @Override
-    public final void addOnRequestPermissionResultCallback(final int requestCode, @NonNull final OnRequestPermissionResultCallback listener) {
-        adapterCallbacks.add(new OnActivityCallbacksAdapter(listener) {
-            @Override
-            public boolean onRequestPermissionResult(int r, @NonNull String[] permissions, @NonNull int[] grantResults) {
-                if (r == requestCode) {
-                    listener.onRequestPermissionResult(permissions, grantResults);
-                    return true;
-                }
-                return false;
-            }
-        });
-    }
-
-    @Override
-    public final void removeOnRequestPermissionResultCallback(@NonNull OnRequestPermissionResultCallback callback) {
-        removeCallback(callback);
     }
 
     @Override
@@ -99,34 +57,6 @@ public abstract class ActivityCallbacksDispatcher implements ActivityCallbacks {
     @Override
     public final void removeOnActivityCallbacks(OnActivityCallbacks callbacks) {
         this.callbacks.remove(callbacks);
-    }
-
-    public final boolean dispatchOnActivityResult(int requestCode, int resultCode, Intent data) {
-        for (OnActivityCallbacks callback : callbacks) {
-            if (callback.onActivityResult(requestCode, resultCode, data)) {
-                return true;
-            }
-        }
-        for (OnActivityCallbacksAdapter adapterCallback : adapterCallbacks) {
-            if (adapterCallback.onActivityResult(requestCode, resultCode, data)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public final boolean dispatchOnRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        for (OnActivityCallbacks callback : callbacks) {
-            if (callback.onRequestPermissionResult(requestCode, permissions, grantResults)) {
-                return true;
-            }
-        }
-        for (OnActivityCallbacksAdapter adapterCallback : adapterCallbacks) {
-            if (adapterCallback.onRequestPermissionResult(requestCode, permissions, grantResults)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public final void dispatchOnMultiWindowModeChanged(boolean isInMultiWindowMode) {
@@ -173,16 +103,6 @@ public abstract class ActivityCallbacksDispatcher implements ActivityCallbacks {
         @Override
         public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
 
-        }
-
-        @Override
-        public boolean onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-            return false;
-        }
-
-        @Override
-        public boolean onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            return false;
         }
     }
 }

@@ -6,26 +6,28 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.view.View
 import android.widget.Button
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import me.tatarka.shard.app.Shard
 import me.tatarka.shard.app.newInstance
 import me.tatarka.shard.app.showDialog
 import javax.inject.Inject
 
-const val REQUEST_CODE_ACTIVITY = 1
-const val REQUEST_CODE_PERMISSION = 2
-
 class DialogHostShard @Inject constructor() : Shard() {
 
     override fun onCreate() {
         setContentView(R.layout.dialogs)
-        activityCallbacks.addOnActivityResultCallback(REQUEST_CODE_ACTIVITY) { resultCode, _ ->
+
+        val activityForResult = prepareCall(StartActivityForResult()) { result ->
             requireViewById<Button>(R.id.start_activity_for_result).text =
-                    "Result: ${if (resultCode == Activity.RESULT_OK) "Ok" else "Cancel"}"
+                    "Result: ${if (result.resultCode == Activity.RESULT_OK) "Ok" else "Cancel"}"
         }
-        activityCallbacks.addOnRequestPermissionResultCallback(REQUEST_CODE_PERMISSION) { _, grantResults ->
+        val permissionCallback = prepareCall(RequestPermission()) { result ->
             requireViewById<Button>(R.id.request_permission).text =
-                    "Result: ${if (grantResults[0] == PackageManager.PERMISSION_GRANTED) "Granted" else "Denied"}"
+                    "Result: ${if (result) "Granted" else "Denied"}"
         }
+
         requireViewById<View>(R.id.simple_dialog).setOnClickListener {
             showDialog(shardFactory.newInstance<SimpleDialogShard>().withNumber(1))
         }
@@ -36,16 +38,10 @@ class DialogHostShard @Inject constructor() : Shard() {
             showDialog(shardFactory.newInstance<MyAlertDialogShard>().withCustomView(2))
         }
         requireViewById<View>(R.id.start_activity_for_result).setOnClickListener {
-            activityCallbacks.startActivityForResult(
-                    Intent(context, ResultActivity::class.java),
-                    REQUEST_CODE_ACTIVITY
-            )
+            activityForResult.launch(Intent(context, ResultActivity::class.java))
         }
         requireViewById<View>(R.id.request_permission).setOnClickListener {
-            activityCallbacks.requestPermissions(
-                    arrayOf(Manifest.permission.SEND_SMS),
-                    REQUEST_CODE_PERMISSION
-            )
+            permissionCallback.launch(Manifest.permission.SEND_SMS)
         }
     }
 }

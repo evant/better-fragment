@@ -8,6 +8,10 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -333,6 +337,24 @@ public abstract class ShardAdapter extends RecyclerView.Adapter<ShardViewHolder>
         @Override
         public SavedStateRegistry getSavedStateRegistry() {
             return parentOwner.getSavedStateRegistry();
+        }
+
+        @NonNull
+        @Override
+        public ActivityResultRegistry getActivityResultRegistry() {
+            return parentOwner.getActivityResultRegistry();
+        }
+
+        @NonNull
+        @Override
+        public <I, O> ActivityResultLauncher<I> prepareCall(@NonNull ActivityResultContract<I, O> contract, @NonNull ActivityResultCallback<O> callback) {
+            return parentOwner.prepareCall(contract, callback);
+        }
+
+        @NonNull
+        @Override
+        public <I, O> ActivityResultLauncher<I> prepareCall(@NonNull ActivityResultContract<I, O> contract, @NonNull ActivityResultRegistry registry, @NonNull ActivityResultCallback<O> callback) {
+            return parentOwner.prepareCall(contract, registry, callback);
         }
     }
 

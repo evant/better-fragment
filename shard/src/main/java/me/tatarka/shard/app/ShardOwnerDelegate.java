@@ -1,9 +1,6 @@
 package me.tatarka.shard.app;
 
-import android.content.Intent;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import me.tatarka.shard.activity.ActivityCallbacks;
 import me.tatarka.shard.content.ComponentCallbacks;
@@ -25,14 +22,6 @@ public class ShardOwnerDelegate {
     public void onCreate() {
         activityCallbacksDispatcher = activityCallbacksDispatcherFactory.create(owner);
         componentCallbacksDispatcher = new ComponentCallbacksDispatcher(owner);
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        activityCallbacksDispatcher.dispatchOnActivityResult(requestCode, resultCode, data);
-    }
-
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        activityCallbacksDispatcher.dispatchOnRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {

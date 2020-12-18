@@ -1,6 +1,5 @@
 package me.tatarka.shard.fragment.app.test;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.tatarka.shard.fragment.app.ShardFragment;
-
 import me.tatarka.shard.fragment.test.R;
 import me.tatarka.shard.wiget.ShardHost;
 

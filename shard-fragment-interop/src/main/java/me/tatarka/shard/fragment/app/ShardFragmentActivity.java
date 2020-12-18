@@ -1,7 +1,6 @@
 package me.tatarka.shard.fragment.app;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.CallSuper;
@@ -51,18 +50,6 @@ public class ShardFragmentActivity extends FragmentActivity implements ShardOwne
     @Override
     public final ComponentCallbacks getComponentCallbacks() {
         return delegate.getComponentCallbacks();
-    }
-
-    @Override
-    @CallSuper
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        delegate.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    @CallSuper
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        delegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
